@@ -1,18 +1,18 @@
 const aboutImages = [
     {
-        src: "/assets/mobil-hero-2.jpg",
+        src: "/assets/mobil-hero-2.webp",
         alt: "Y Transport city",
     },
     {
-        src: "/assets/honda-hero.jpg",
+        src: "/assets/honda-hero.webp",
         alt: "Y Transport vehicle",
     },
     {
-        src: "/assets/honda-hero-2.jpg",
+        src: "/assets/honda-hero-2.webp",
         alt: "Y Transport car",
     },
     {
-        src: "/assets/mobil-hero-4.jpg",
+        src: "/assets/mobil-hero-4.webp",
         alt: "Y Transport driver",
     },
 ];

@@ -16,7 +16,7 @@ export default function Hero() {
         >
             {/* Background Image */}
             <img
-                src="/assets/mobil-hero-2.jpg"
+                src="/assets/mobil-hero-2.webp"
                 alt="Y Transport vehicle"
                 className="
                     absolute

@@ -61,7 +61,7 @@ export default function Navbar() {
                         "
                     >
                         <img
-                            src="/assets/logo.png"
+                            src="/assets/logo.webp"
                             className="
                                 h-10
                                 w-auto

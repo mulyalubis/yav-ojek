@@ -29,7 +29,7 @@ export default function Contact() {
                 <div className="grid overflow-hidden rounded-xl bg-[#0B1954] md:grid-cols-2">
 
                     {/* LEFT - INFORMATION */}
-                    <div className="p-6 text-white sm:p-8 bg-[url('/assets/mobil-contact.jpg')] bg-center bg-cover">
+                    <div className="p-6 text-white sm:p-8 bg-[url('/assets/mobil-contact.webp')] bg-center bg-cover">
                         <h3 className="text-xl font-medium">
                             Contact Us
                         </h3>

@@ -9,7 +9,7 @@ export default function Footer() {
                     <div className="flex flex-col items-center md:items-center">
                         <div className="flex h-12 items-center justify-center md:justify-start">
                             <img
-                                src="/assets/logo.png"
+                                src="/assets/logo.webp"
                                 alt="YK Transport Logo"
                                 className="h-full w-auto object-contain"
                             />
