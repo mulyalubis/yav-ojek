@@ -1,11 +1,14 @@
+"use client";
+
+import { useEffect } from "react";
 import {
-    MapContainer,
-    Marker,
-    Popup,
-    TileLayer,
-    useMapEvents,
-} from "react-leaflet";
-import L from "leaflet";
+    Map,
+    MapMarker,
+    MarkerContent,
+    MapPopup,
+    MapControls,
+    useMap,
+} from "@/components/ui/map";
 
 export interface Location {
     lat: number;
@@ -22,47 +25,30 @@ interface MapPanelProps {
 
 /*
 |--------------------------------------------------------------------------
-| Leaflet marker icon
+| Custom Click Listener via MapLibre Instance
 |--------------------------------------------------------------------------
-| Leaflet secara default kadang tidak menemukan file icon ketika
-| digunakan bersama Vite. Karena itu kita tentukan icon secara manual.
 */
-
-const markerIcon = new L.Icon({
-    iconUrl:
-        "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-
-    iconRetinaUrl:
-        "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-
-    shadowUrl:
-        "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
-});
-
-/*
-|--------------------------------------------------------------------------
-| Map click handler
-|--------------------------------------------------------------------------
-| Component ini mendengarkan klik yang terjadi di dalam map.
-*/
-
 function MapClickHandler({
     onLocationSelect,
 }: {
     onLocationSelect: (lat: number, lng: number) => void;
 }) {
-    useMapEvents({
-        click(event) {
-            const { lat, lng } = event.latlng;
+    const { map } = useMap();
 
-            onLocationSelect(lat, lng);
-        },
-    });
+    useEffect(() => {
+        if (!map) return;
+
+        const handleClick = (e: any) => {
+            if (e.lngLat) {
+                onLocationSelect(e.lngLat.lat, e.lngLat.lng);
+            }
+        };
+
+        map.on("click", handleClick);
+        return () => {
+            map.off("click", handleClick);
+        };
+    }, [map, onLocationSelect]);
 
     return null;
 }
@@ -72,122 +58,101 @@ function MapClickHandler({
 | MapPanel
 |--------------------------------------------------------------------------
 */
-
 export default function MapPanel({
     pickup,
     destination,
     activeField,
     onLocationSelect,
 }: MapPanelProps) {
-    /*
-    |--------------------------------------------------------------------------
-    | Posisi awal map
-    |--------------------------------------------------------------------------
-    | Untuk sementara kita gunakan Banda Aceh.
-    | Nanti bisa diganti sesuai lokasi target project.
-    */
-
-    const defaultPosition: [number, number] = [
-        5.5483,
-        95.3238,
-    ];
+    // Posisi awal peta Banda Aceh: [longitude, latitude]
+    const defaultCenter: [number, number] = [95.3238, 5.5483];
 
     return (
         <div className="relative overflow-hidden rounded-lg">
-            {/*
-      |--------------------------------------------------------------------------
-      | Indicator kecil di atas map
-      |--------------------------------------------------------------------------
-      | Ini hanya muncul ketika user sudah memilih salah satu input.
-      */}
-
+            {/* Indicator aktif */}
             {activeField && (
-                <div className="absolute left-3 top-3 z-999 rounded-md bg-white px-3 py-2 text-xs font-medium text-gray-800 shadow-md">
+                <div className="absolute left-3 top-3 z-50 rounded-md bg-white px-3 py-2 text-xs font-medium text-gray-800 shadow-md">
                     {activeField === "pickup"
                         ? "Klik map untuk memilih titik awal"
                         : "Klik map untuk memilih tujuan"}
                 </div>
             )}
 
-            <MapContainer
-                center={defaultPosition}
+            <Map
+                styles={{
+                    light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+                }}
+                center={defaultCenter}
                 zoom={14}
-                scrollWheelZoom={true}
                 className="h-62.5 w-full sm:h-70"
             >
-                {/*
-        |--------------------------------------------------------------------------
-        | OpenStreetMap tiles
-        |--------------------------------------------------------------------------
-        */}
+                <MapControls position="bottom-right" />
+                <MapClickHandler onLocationSelect={onLocationSelect} />
 
-                <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-
-                {/*
-        |--------------------------------------------------------------------------
-        | Map click
-        |--------------------------------------------------------------------------
-        */}
-
-                <MapClickHandler
-                    onLocationSelect={onLocationSelect}
-                />
-
-                {/*
-        |--------------------------------------------------------------------------
-        | Pickup marker
-        |--------------------------------------------------------------------------
-        */}
-
+                {/* Marker & Popup Titik Awal */}
                 {pickup && (
-                    <Marker
-                        position={[
-                            pickup.lat,
-                            pickup.lng,
-                        ]}
-                        icon={markerIcon}
+                    <MapMarker
+                        longitude={pickup.lng}
+                        latitude={pickup.lat}
+                        anchor="bottom"
                     >
-                        <Popup>
-                            <div className="text-sm">
-                                <strong>Titik Awal</strong>
-
-                                <div className="mt-1">
-                                    {pickup.address}
-                                </div>
-                            </div>
-                        </Popup>
-                    </Marker>
+                        <MarkerContent>
+                            <img
+                                src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png"
+                                alt="Pickup Marker"
+                                className="h-10.25 w-6.25 drop-shadow-md"
+                            />
+                        </MarkerContent>
+                    </MapMarker>
                 )}
 
-                {/*
-        |--------------------------------------------------------------------------
-        | Destination marker
-        |--------------------------------------------------------------------------
-        */}
+                {pickup && pickup.address && (
+                    <MapPopup
+                        longitude={pickup.lng}
+                        latitude={pickup.lat}
+                        anchor="bottom"
+                        offset={[0, -42]}
+                        closeButton={false}
+                    >
+                        <div className="p-1 text-xs">
+                            <strong>Titik Awal</strong>
+                            <div className="mt-0.5">{pickup.address}</div>
+                        </div>
+                    </MapPopup>
+                )}
 
+                {/* Marker & Popup Tujuan */}
                 {destination && (
-                    <Marker
-                        position={[
-                            destination.lat,
-                            destination.lng,
-                        ]}
-                        icon={markerIcon}
+                    <MapMarker
+                        longitude={destination.lng}
+                        latitude={destination.lat}
+                        anchor="bottom"
                     >
-                        <Popup>
-                            <div className="text-sm">
-                                <strong>Tujuan</strong>
-
-                                <div className="mt-1">
-                                    {destination.address}
-                                </div>
-                            </div>
-                        </Popup>
-                    </Marker>
+                        <MarkerContent>
+                            <img
+                                src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png"
+                                alt="Destination Marker"
+                                className="h-10.25 w-6.25 drop-shadow-md"
+                            />
+                        </MarkerContent>
+                    </MapMarker>
                 )}
-            </MapContainer>
+
+                {destination && destination.address && (
+                    <MapPopup
+                        longitude={destination.lng}
+                        latitude={destination.lat}
+                        anchor="bottom"
+                        offset={[0, -42]}
+                        closeButton={false}
+                    >
+                        <div className="p-1 text-xs">
+                            <strong>Tujuan</strong>
+                            <div className="mt-0.5">{destination.address}</div>
+                        </div>
+                    </MapPopup>
+                )}
+            </Map>
         </div>
     );
 }

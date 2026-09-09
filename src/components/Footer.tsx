@@ -15,7 +15,7 @@ export default function Footer() {
                             />
                         </div>
 
-                        <p className="mt-3 max-w-xs text-center text-sm text-white/80 md:text-left">
+                        <p className="mt-3 max-w-50 text-center text-sm text-white/80 md:text-center">
                             Perjalanan aman, nyaman dan juga terjangkau
                         </p>
                     </div>
